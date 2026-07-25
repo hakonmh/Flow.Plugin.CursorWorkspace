@@ -1,6 +1,5 @@
 A plugin for Flow Launcher that allows user to quickly open the recent workspace of Cursor.
 
-
 The default actionkeyword is `cu`.
 
 Remote Workspace (WSL/SSH) are also supported.
