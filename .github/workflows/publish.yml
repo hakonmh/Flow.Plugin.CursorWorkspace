@@ -7,13 +7,16 @@ on:
       - .github/workflows/*
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   publish:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Setup .NET
-        uses: actions/setup-dotnet@v3
+        uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 7.0.x
       - name: get version
@@ -29,9 +32,7 @@ jobs:
           7z a -tzip "Flow.Plugin.CursorWorkspaces-${{steps.version.outputs.prop}}.zip" "./Flow.Plugin.CursorWorkspaces-${{steps.version.outputs.prop}}/*"
           rm -r "Flow.Plugin.CursorWorkspaces-${{steps.version.outputs.prop}}"
       - name: Publish
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           files: "Flow.Plugin.CursorWorkspaces*.zip"
           tag_name: "v${{steps.version.outputs.prop}}"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
