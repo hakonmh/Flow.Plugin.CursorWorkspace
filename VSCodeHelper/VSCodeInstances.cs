@@ -198,7 +198,9 @@ namespace Flow.Plugin.CursorWorkspaces.VSCodeHelper
                 VSCodeVersion = VSCodeVersion.Stable
             };
 
-            var pluginImagesPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "Images");
+            var pluginDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)
+                ?? throw new InvalidOperationException("Could not resolve plugin directory.");
+            var pluginImagesPath = Path.Combine(pluginDir, "Images");
             var cursorBitmapIcon = TryExtractIconBitmap(FindCursorExecutable());
             var cursorFolderIcon = (Bitmap)Image.FromFile(Path.Combine(pluginImagesPath, "folder.png"));
             var cursorMonitorIcon = (Bitmap)Image.FromFile(Path.Combine(pluginImagesPath, "monitor.png"));
