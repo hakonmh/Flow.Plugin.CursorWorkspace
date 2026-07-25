@@ -42,6 +42,9 @@ namespace Flow.Plugin.CursorWorkspaces.VSCodeHelper
 
         private static Bitmap BitmapOverlayToCenter(Bitmap bitmap1, Bitmap overlayBitmap)
         {
+            if (overlayBitmap == null)
+                return bitmap1;
+
             int bitmap1Width = bitmap1.Width;
             int bitmap1Height = bitmap1.Height;
 
@@ -58,6 +61,55 @@ namespace Flow.Plugin.CursorWorkspaces.VSCodeHelper
             }
 
             return finalBitmap;
+        }
+
+        private static string FindCursorExecutable()
+        {
+            var candidates = new[]
+            {
+                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Programs", "cursor", "Cursor.exe"),
+                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "cursor", "Cursor.exe"),
+                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "cursor", "Cursor.exe"),
+            };
+
+            foreach (var candidate in candidates)
+            {
+                if (File.Exists(candidate))
+                    return candidate;
+            }
+
+            var pathEnv = Environment.GetEnvironmentVariable("PATH") ?? string.Empty;
+            foreach (var dir in pathEnv.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+            {
+                var cursorExe = Path.Combine(dir, "cursor.exe");
+                if (File.Exists(cursorExe))
+                    return cursorExe;
+
+                var cursorCmd = Path.Combine(dir, "cursor.cmd");
+                if (!File.Exists(cursorCmd))
+                    continue;
+
+                var fromCmd = Path.GetFullPath(Path.Combine(dir, "..", "..", "..", "Cursor.exe"));
+                if (File.Exists(fromCmd))
+                    return fromCmd;
+            }
+
+            return null;
+        }
+
+        private static Bitmap TryExtractIconBitmap(string exePath)
+        {
+            if (string.IsNullOrEmpty(exePath) || !File.Exists(exePath))
+                return null;
+
+            try
+            {
+                return Icon.ExtractAssociatedIcon(exePath)?.ToBitmap();
+            }
+            catch (IOException)
+            {
+                return null;
+            }
         }
 
         // Gets the AppData foreach instance of VSCode
@@ -145,11 +197,11 @@ namespace Flow.Plugin.CursorWorkspaces.VSCodeHelper
                 AppData = Path.Combine(_userAppDataPath, "Cursor"),
                 VSCodeVersion = VSCodeVersion.Stable
             };
-            var cursorAppData = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Programs\\cursor");
 
-            var cursorBitmapIcon = Icon.ExtractAssociatedIcon(Path.Join(cursorAppData, $"Cursor.exe"))?.ToBitmap();
-            var cursorFolderIcon = (Bitmap)Image.FromFile(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "//Images//folder.png");
-            var cursorMonitorIcon = (Bitmap)Image.FromFile(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "//Images//monitor.png");
+            var pluginImagesPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "Images");
+            var cursorBitmapIcon = TryExtractIconBitmap(FindCursorExecutable());
+            var cursorFolderIcon = (Bitmap)Image.FromFile(Path.Combine(pluginImagesPath, "folder.png"));
+            var cursorMonitorIcon = (Bitmap)Image.FromFile(Path.Combine(pluginImagesPath, "monitor.png"));
             cursorInstance.WorkspaceIconBitMap = Bitmap2BitmapImage(BitmapOverlayToCenter(cursorFolderIcon, cursorBitmapIcon));
             cursorInstance.RemoteIconBitMap = Bitmap2BitmapImage(BitmapOverlayToCenter(cursorMonitorIcon, cursorBitmapIcon));
 
