@@ -6,7 +6,7 @@
 		<RootNamespace>Flow.Plugin.CursorWorkspaces</RootNamespace>
 		<AssemblyName>Flow.Plugin.CursorWorkspaces</AssemblyName>
 		<OutputType>Library</OutputType>
-		<Version>1.0.2</Version>
+		<Version>1.0.3</Version>
 		<useWPF>true</useWPF>
 		<Platforms>x64</Platforms>
 		<AppendRuntimeIdentifierToOutputPath>False</AppendRuntimeIdentifierToOutputPath>

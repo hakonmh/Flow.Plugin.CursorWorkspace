@@ -188,9 +188,8 @@ namespace Flow.Plugin.CursorWorkspaces
 
             VSCodeInstances.LoadVSCodeInstances();
 
-            // Prefer stable version, or the first one we got
-            defaultInstance = VSCodeInstances.Instances.Find(e => e.VSCodeVersion == VSCodeVersion.Stable) ??
-                              VSCodeInstances.Instances.FirstOrDefault();
+            defaultInstance = VSCodeInstances.Instances
+                .FirstOrDefault(i => i.AppData.EndsWith("Cursor", StringComparison.OrdinalIgnoreCase));
         }
 
         public Control CreateSettingPanel() => new SettingsView(_context, _settings);
